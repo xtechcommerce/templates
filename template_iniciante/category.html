@@ -181,18 +181,28 @@
 		{% endif %}
 			<div class="row">
 				<div class="col-xs-12">
-					{# Titulo da PÃ¡gina #}
+					{# Titulo da Página #}
 					{% if term is not empty %}
 						<h1 class="category-header">{{ "Resultado da busca por"|trans({'en':'Results with'}) }} {{ term }}</h1>
 					{% else %}
 						<h1 class="category-header">{{ category.name }}</h1>
+						
+						{# Imagem da categoria #}
+    				    {% if category.image is not empty %}
+        					<div class="category-img">
+        						{{ category_img(category, 'full', true) }}
+        					</div>
+        				{% endif %}
+					    
+					    {# Descrição da categoria #}
+					    {% if category.excerpt is not empty %}
+    						<div style="margin: 10px 0px 0px;">{{ category.excerpt }}</div>
+    					{% endif %}
+    					{% if category.description is not empty %}
+    						<div style="margin: 10px 0px 30px;">{{ category.description }}</div>
+    					{% endif %}
 					{% endif %}
 				</div>
-				{% if category.image is not empty %}
-					<div class="col-xs-12 category-img">
-						{{ category_img(category, 'full', true) }}
-					</div>
-				{% endif %}
 			</div>
 			<div class="row">
 				<div id="filter-widget" class="col-xs-12">
