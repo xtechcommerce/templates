@@ -1,0 +1,30 @@
+<div id="size-table" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">
+					Tabela de Medidas
+				</h4>
+			</div>
+			<div class="modal-body" style="padding: 0;">
+				<!-- Nav tabs -->
+				{% if get_collection('measure') %}
+				<ul class="nav nav-tabs">
+					{% for item in get_collection('measure') %}
+						<li {% if loop.first %}class="active"{% endif %}><a href="#{{ item['text:title']|striptags|lower|replace({' ':'-','á':'a','à':'a','â':'a','ã':'a','ä':'a','é':'e','è':'e','ê':'e','ë':'e','ó':'o','ò':'o','ô':'o','õ':'o','ö':'o','ú':'u','ù':'u','û':'u','ü':'u','ç':'c','&':'','!':'','$':''}) }}" data-toggle="tab">{{ item['text:title'] }}</a></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+				<!-- Tab panes -->
+				<div class="tab-content">
+					{% for item in get_collection('measure') %}
+						<div class="tab-pane {% if loop.first %}active{% endif %}" id="{{ item['text:title']|striptags|lower|replace({' ':'-','á':'a','à':'a','â':'a','ã':'a','ä':'a','é':'e','è':'e','ê':'e','ë':'e','ó':'o','ò':'o','ô':'o','õ':'o','ö':'o','ú':'u','ù':'u','û':'u','ü':'u','ç':'c','&':'','!':'','$':''}) }}">
+							<img src="{{ host_url("uploads/images/full/" ~ item['image:body']) }}" alt="Tabela de Medidas" />
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

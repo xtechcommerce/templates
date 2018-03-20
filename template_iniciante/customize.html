@@ -1,0 +1,141 @@
+<script src="//ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
+<script>WebFont.load({google: {families: ['{{ template_settings('font:body')|default('Ubuntu') }}:100,200,300,400,500,600,700,800,900']}});</script>
+
+<style>    
+    {% if shop_config('moxchat_widget_code') %}
+    #topcontrol .top_button{
+        margin-bottom: 50px;
+    }
+    {% endif %}
+    
+    /* FONT */
+    *, div, span, p,
+    h1, h2, h3, h4, h5, h6, label {
+        font-family: {{ template_settings('font:body')|replace({'+':' '})|default('Ubuntu') }};
+    }
+    
+        
+    /* TOPO */
+    #topbar{
+        background: {{ template_settings('color:topbar') }};
+        color:  {{ template_settings('color:topbar_text') }};
+    }
+    #topbar a {
+        color: {{ template_settings('color:topbar_text') }};
+    }
+    
+    header {
+        background: {{ template_settings('color:header') }};
+    }
+    
+    #menu .navbar{
+        background: {{ template_settings('color:menu') }};
+        border-color: {{ template_settings('color:menu_border') }};
+    }
+    #menu .navbar-nav>li + li{
+        border-color: {{ template_settings('color:menu_border') }};
+    }
+    #menu .navbar-default .navbar-nav>li>a {
+        color: {{ template_settings('color:menu_text') }};
+    }
+    
+    /* MENU */
+    #menu{
+        background-color: #fff;
+    }
+
+    
+    /* FOOTER */
+    footer{
+        background-color: {{ template_settings('color:footer') }};
+        color:  {{ template_settings('color:footer_text') }};
+    }
+    
+    footer a {
+        color:  {{ template_settings('color:footer_text') }};
+    }
+    
+    /* ADJUST */
+        .adjust{
+            margin-top: {{ template_settings('text:h_height') }}px;
+        }
+        
+    /* ALTURA IMAGEM */
+        #store-content .product-list-item .prod-wrapper .prod-image{
+            height: {{ template_settings('text:home_prodheight') }}px;
+        }
+    
+        #store-content .cat-prod-list .prod-wrapper .prod-image{
+            height: {{ template_settings('text:cat_prodheight') }}px;
+        }
+        
+    
+    /* ACCENT */
+        a:hover,
+        #menu .navbar-nav>li a:hover {
+            color: {{ template_settings('color:accent') }};
+        }
+     
+    
+    #exit_popup .modal-body {
+        background: {{ template_settings('color:exit_bg') }};
+    }
+    #popup .modal-body {
+        background: {{ template_settings('color:popup_bg') }};
+    }   
+    
+    #exit_popup .modal-body h1,
+    #exit_popup .modal-body span,
+    #exit_popup .modal-body p,
+    #exit_popup .modal-body {
+        color: {{ template_settings('color:exit_text')}};    
+    }
+    #popup .modal-body h1,
+    #popup .modal-body span,
+    #popup .modal-body p,
+    #popup .modal-body {
+        color: {{ template_settings('color:popup_text')}};    
+    }
+    
+    #exit_popup .close {
+        color: {{ template_settings('color:exit_close') }};
+    }
+    #popup .close {
+        color: {{ template_settings('color:popup_close') }};
+    }
+    
+    #exit_popup button[type=submit] {
+        color: {{ template_settings('color:exit_submit') }};
+        background-color: {{ template_settings('color:exit_submit_bg') }};
+    }
+    #popup button[type=submit] {
+        color: {{ template_settings('color:popup_submit') }};
+        background-color: {{ template_settings('color:popup_submit_bg') }};
+    }
+    
+    /* BUY */
+    #product .prod-action .buy-btn,
+    #product .prod-action .remindme-form fieldset input[type=submit] {
+        background: {{ template_settings('color:buy_product') }};
+        color: {{ template_settings('color:buy_product_text') }};
+        
+    }
+    
+    #store-content .prod-wrapper .prod-action {
+        background: {{ template_settings('color:buy') }};
+        color: {{ template_settings('color:buy_text') }};
+    }
+    
+    
+    #store-content .prod-wrapper .prod-action a span{
+        color: {{ template_settings('color:buy_text') }};
+    }
+    
+    #store-content .off {
+        background: {{ template_settings('color:off') }};
+        color: {{ template_settings('color:off_text') }};
+    }
+    
+</style>
+
+

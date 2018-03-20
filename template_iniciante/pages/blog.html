@@ -1,0 +1,99 @@
+<div class="col-xs-12">
+	<ol class="breadcrumb">
+		<li><a href="{{ site_url() }}">Página Principal</a></li>
+		<li><a href="{{ site_url('blog') }}">Blog</a></li>
+	</ol>
+</div>
+{% if template_settings('if:bl_archive') %}
+<div class="col-xs-3 sidebar">
+	<div class="side-header"><i class="glyphicon glyphicon-book"></i> Arquivo</div>
+	<ul>
+		<li><a href="{{ site_url('blog') }}">Ver Todos Posts</a></li>
+		{# Sets #}
+		{% set i = 0 %}
+		{% set Date = {} %}
+		{# Ajustando ano e mês para o formato no array #}
+		{% for item in get_collection('blog') %}
+			{% set postYears = item.created_at|date("Y")|e %}
+			{% set postMonths = item.created_at|date("n")|replace({"1":"Janeiro","2":"Fevereiro","3":"Março","4":"Abril","5":"Maio","6":"Junho","7":"Julho","8":"Agosto","9":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"}) %}
+			{% set postDate = item.created_at|date("n") ~ " " ~ postMonths ~ " - " ~ postYears %}
+			{% set Date = Date|merge({ (postYears) : postDate }) %}
+		{% endfor %}
+		{# Sets #}
+		{% set e = {} %}
+		{% set f = {} %}
+		{# Criar variavel com a Data atual no formato certo #}
+		{% set curDate = date() %}
+		{% set curDate = curDate.date %}
+		{% if curDate|split('')[5] != 0 %}
+		    {% set curDate = curDate|split('')[5] ~ curDate|split('')[6] ~ ' -' ~ curDate|split('-')[0] %}
+		{% else %}
+		    {% set curDate = curDate|split('')[6] ~ ' - ' ~ curDate|split('-')[0] %}
+		{% endif %}
+		{# Imprimir os menus #}
+		{% for d in Date %}
+		    {# Imprime Ano #}
+            {% if d|split(' ')[3] not in e %}
+                {% set curYear = d|split(' ')[3] %}
+                {% set e = e|merge([curYear]) %}
+				<li><a href="{{ site_url('blog?year=' ~ d|split(' ')[3]) }}">{{ d|split(' ')[3] }}</a></li>
+			{% endif %}
+			{# Imprime Mes #}
+			{# Seta o mes no array#}
+			{% if d|split(' ')[1] not in f %}
+                {% set f = f|merge([d|split(' ')[1]]) %}
+		        <li class="child"><a href="{{ site_url('blog?month=' ~ d|split(' ')[0] ~ '&amp;year=' ~ d|split(' ')[3]) }}">{{ d|split(' ')[1] }}</a></li>
+			{% endif %}
+		{% endfor %}
+	</ul>
+</div>
+<div class="col-xs-9">
+{% else %}
+<div class="col-xs-12">
+{% endif %}
+	{% if request.get.single %}
+		{# Single #}
+		{% set single = get_element(request.get.single) %}
+		<div class="blog-item">
+			<h3 class="category-header">{{ single['text:title'] }}</h3>
+			<div class="cat_options">Publicado: <span>{{ single.created_at|to_formatted_date }}</span></div>	
+			<div class="resume">{{ single['textarea:resume']|raw }}</div>		
+			<div class="body">{{ single['textarea:body']|raw }}</div>
+		</div>
+		<a class="btn btn-primary" href="{{ site_url('blog') }}" class="button blue">Voltar</a>
+	{% else %}
+		{# Listagem #}
+		<div id="blog-posts">
+			{% for item in get_collection('blog', {'paginate': true, 'limit': 9, 'month': request.get.month, 'year': request.get.year}) %}
+				<div class="blog-item">
+				    {% if item['image:cover'] %}
+					<a href="{{ site_url('blog?single=' ~ item.slug) }}">
+						<img src="{{ host_url('uploads/images/full/' ~ item['image:cover']) }}" alt="">
+					</a>
+					{% endif %}
+					<p class="item-date">{{ item.created_at|to_formatted_date }}</p>
+					<div class="item-title">
+						<a href="{{ site_url('blog?single=' ~ item.slug) }}">{{ item['text:title'] }}</a>
+					</div>
+				</div>
+			{% endfor %}
+			<script>
+				$(window).load(function() {
+					$('#blog-posts').BlocksIt({
+						numOfCol: {% if template_settings('if:bl_archive') %}3{% else %}4{% endif %},
+						offsetX: 10,
+						offsetY: 10,
+						blockElement: '.blog-item'
+					});
+				});
+			</script>
+		</div> 
+		{% if get_collection_pagination() %}
+    		<div class="row">
+    			<div class="col-xs-12">
+    				{{ get_collection_pagination() }}
+    			</div>
+    		</div>
+		{% endif %}
+	{% endif %}
+</div>

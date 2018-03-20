@@ -1,0 +1,14 @@
+{% extends _layout %}
+
+{% block content %}
+
+{{ order_placed_widget() }}
+
+<script>
+    $('h1.page-title ').addClass('category-header').attr('style','margin-top:20px;');
+</script>
+
+{% if template_settings('textarea:order_placed_code') %}
+    {{ template_settings('textarea:order_placed_code') }}
+{% endif %}
+{% endblock %}

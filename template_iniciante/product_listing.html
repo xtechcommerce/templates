@@ -1,0 +1,215 @@
+{% macro script() %}
+    {# Change Picture #}
+   	<script type="text/javascript">
+  		function change_pic(el) {
+  			var option = el.find('a').data('opt');
+  			el.parents('.prod-wrapper').find('.ig-option').hide();
+  			el.parents('.prod-wrapper').find('.ig-'+option).show();
+  		}
+
+  		$(document).ready(function(){
+  			$('.l-color').on('click', function(){
+  				change_pic($(this));
+  			});
+  		});
+	</script>
+{% endmacro %}
+{% macro item(product, category, cols) %}
+	{# Sets #}
+	{% set varOpt = [] %}
+	{% set prodOpt = [] %}
+	{% set imgPrimary = [] %}
+
+	{# Salva as cores numa variavel #}
+	{% set variantVal = {} %}
+	{% for gb in global_options %}
+		{% if (gb.name|lower|trim == 'cor' or gb.name|lower|trim == 'cores') and variantVal.lenght == 0 %}
+			{% set variantVal = gb.values %}
+		{% endif %}
+    {% endfor %}
+
+	{# Seta array de opcoes #}
+    {% for variant in product.variants %}
+		{% for variant_option in variant.option_values %}
+			{% set varOpt = varOpt|merge([variant_option]) %}
+		{% endfor %}
+	{% endfor %}
+
+	{# Confere opcao da imagem primária #}
+	{% for image in product.images %}
+		{% if image.primary %}
+			{% set imgPrimary = image.options %}
+		{% endif %}
+	{% endfor %}
+
+	<div class="product-list-item col-xs-{{ cols|default(3) }}">
+		<div class="prod-wrapper">
+		    {# Flags #}
+			{% if template_settings('if:catalog') == 0 %}
+    			{% if product.track_stock == 1 and product.quantity <= 0 %}
+    				<div class="out">
+    					<span>{{ template_settings('text:product_off') }}</span>
+    				</div>
+    			{% else %}
+    				{# Sale #}
+    				{% set sale = false %}
+    				{% for category in product.categories %}
+    					{% if categories_flatten[category.id].slug == 'sale' %}
+    						<div class="promo">
+    							<span>Sale</span>
+    						</div>
+    						{% set sale = true %}
+    					{% endif %}
+    				{% endfor %}
+    				{% if template_settings('if:off_active') == 1 %}
+        				{% if product.saleprice > 0 %}
+            				{# Porcentagem OFF #}
+            				<div class="off" style="{{ sale ? '' : 'top: 0px;' }}">
+            					<span>{{ ((( product.saleprice - product.price ) / product.price) * 100)|round }}%</span>
+            				</div>
+        				{% endif %}
+    				{% endif %}
+    			{% endif %}
+			{% endif %}
+
+			{# Grupo padrão de Imagem #}
+			<div class="imgGroup ig-default">
+				<a href="{{ site_url( (category.slug ~ '/')|default('') ~ product.slug ) }}">
+					{# Imagem Swap #1 #}
+					<div class="prod-image imgLiquidFill imgLiquid">
+						<div class="prod-image-overflow">
+							<img src="{{ product_img(product, 'medium', {'only_link': true}) }}" alt="{{ product.name }}" style="display: block;" />
+						</div>
+					</div>
+					{% if template_settings('if:swap-image') and product.images|length > 1 %}
+					{# Imagem Swap #2 #}
+					<div class="prod-image imgLiquidFill imgLiquid prod-hover-image">
+						<div class="prod-image-overflow">
+							<img src="{% for image in product.images|slice(0,2) %}{% if not image.primary %}{{ theme_upload_url('images/medium/' ~ image.filename) }}{% endif %}{% endfor %}" alt="{{ product.name }}" style="display: block;" />
+						</div>
+					</div>
+					{% endif %}
+				</a>
+			</div>
+
+    		{# Checa se imagem esta associada com alguma option #}
+			{% for variant_option in varOpt %}
+        		{% for imagesOption in product.images %}
+					{% if imagesOption.options == variant_option and imagesOption.options != imgPrimary %}
+						{% if imgOpt[variant_option] is empty %}
+			        		{# Grupos de Imagem para cada Option ID #}
+			        		<div class="imgGroup ig-option ig-{{ variant_option }}">
+				        		<a href="{{ site_url( (category.slug ~ '/')|default('') ~ product.slug ) }}">
+									{% set imgOpt = { (variant_option):imagesOption.filename } %}
+									{# Imagem Swap #1 #}
+									<div class="prod-image imgLiquidFill imgLiquid">
+										<div class="prod-image-overflow">
+											<img src="{{ theme_upload_url('images/medium/' ~ imagesOption.filename) }}" alt="{{ product.name }}" style="display: block;" />
+										</div>
+									</div>
+									
+									{% set imgCheck = [] %}
+									{# Salva Imagens da mesma opcao na variavel #}
+									{% for image in product.images %}
+										{% if image.options == variant_option %}
+											{% set imgCheck = imgCheck|merge([image]) %}
+										{% endif %}
+									{% endfor %}
+
+									{% if template_settings('if:swap-image') %}
+									{# Imagem Swap #2 #}
+									<div class="prod-image imgLiquidFill imgLiquid prod-hover-image">
+										<div class="prod-image-overflow">
+											<img src="{% for imageIn in imgCheck|slice(1,1) %}{{ theme_upload_url('images/medium/' ~ imageIn.filename) }}{% endfor %}" alt="{{ product.name }}" style="display: block;" />
+										</div>
+									</div>
+									{% endif %}
+								</a>
+			        		</div>
+						{% endif %}
+        			{% endif %}
+    			{% endfor %}
+    			
+    		{% endfor %}
+
+			{# Cores #}
+	        <div class="colorsOption">
+				<ul class="colorsBox">
+    				{# Confere o nome das opcoes do produtos e coloca as boxes de cores #}
+    				{% set colors_already_setted = [] %}
+					{% for variant_option in varOpt %}
+		        		{% for variantCheck in variantVal %}
+							{% if variant_option == variantCheck.id %}
+								{% if prodOpt[variant_option] is empty %}
+									{% set prodOpt = { (variant_option):variantCheck.name } %}
+		          	    			{% if variantCheck.color %}
+		          	    			    {% if variantCheck.color not in colors_already_setted %}
+    		          	    			<li class="l-color">
+    			          	    			<a id="filter_{{ variant_option }}" class="sub f-color" data-opt="{{ variant_option }}" href="#filter_option{{ variant_option }}" title="{{ variantCheck.name }}">
+    		          	    					<span class="s-color" style="background: {{ variantCheck.color }};"></span>
+    		          	    				</a>
+    		          	    				{% set colors_already_setted = colors_already_setted|merge([variantCheck.color]) %}
+    		          	    			</li>
+    		          	    			{% endif %}
+									{% endif %}	
+								{% endif %}
+							{% endif %}
+		        		{% endfor %}
+	        		{% endfor %}
+		        </ul>
+	        </div>
+			<div class="prod-info">
+				{# Titulo #}
+				<a title="{{ product.name }}" href="{{ site_url( (category.slug ~ '/')|default('') ~ product.slug ) }}">
+					<label>{{ product.name }}</label>
+				</a>
+				{# Preço #}
+				{% if template_settings('if:catalog') == 0 and product.price > 0 %}
+				<span class="price">
+					{# Preços #}
+					{% set product_price = product.saleprice > 0 ? product.saleprice : product.price %}
+					<p class="buy-price">
+						{{ (product.saleprice > 0 ? '<span class="slash">' ~ product.price|format_currency ~ '</span>' : '')|raw }}
+						<strong {% if template_settings('select:price_focus') == 'Promocional' %}class="sale"{% endif %}>{{ product_price|format_currency }}</strong>
+					</p>
+					{% if product.track_stock == 1 and  product.quantity <= 0 %}
+						{# Esgotado #}
+						<p class="outofstock">
+							{{ lang('out_of_stock') }}
+						</p>
+					{% else %}
+						{% if template_settings('if:installments') == 0 %}
+							{# Parcelamento #}
+							{% if product.installments > 0 %}
+								<p class="installments-price">
+									<strong>{{ product.installments }}x</strong>
+									{{ 'de'|trans({'en':'of'}) }} <strong {% if template_settings('select:price_focus') == 'Parcelado' %}class="sale"{% endif %}>{{ (product_price/product.installments)|format_currency }}</strong>
+									<span>{{ 'S/ JUROS'|trans({'en':''}) }}</span>
+								</p>
+							{% endif %}
+						{% endif %}
+					{% endif %}
+					{% if template_settings('if:at_sight') %}
+					    <p class="onsight-price"><strong>{{ (product_price - (template_settings('text:at_sight_value') / 100) * product_price)|format_currency }}</strong> {{template_settings('text:at_sight_desc')}}</p>
+					{% endif %}
+				</span>
+		    	{% endif %}	
+			</div>
+			{% if template_settings('if:catalog') == 0 %}
+			<div class="prod-action">
+				<a title="{{ product.name }}" href="{{ site_url( (category.slug ~ '/')|default('') ~ product.slug ) }}">
+					<span>
+						<i class="glyphicon glyphicon-shopping-cart"></i>
+						{{ "Ver Produto"|trans({"en":"See More"}) }}
+					</span>
+				</a>
+			</div>
+			{% endif %}
+			<script>
+				$(document).ready(function(){
+					$('.product-list-item .prod-action').css('display','none');
+				});
+			</script>
+		</div>
+	</div>
+{% endmacro %}

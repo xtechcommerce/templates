@@ -1,0 +1,17 @@
+var shipping_area = [
+{% if get_collection('shipping_address') %}
+    {% for item in get_collection('shipping_address') %}
+        {% if loop.index != 1 %}
+            ,
+        {% endif %}
+        {% set loop_limiter = 0 %}
+        {% for cep in item['textarea:ceps']|split(',') if loop_limiter <= item['textarea:ceps']|split(',') %}
+            "{{cep}}"   
+            {% set loop_limiter = loop.index %}
+            {% if item['textarea:ceps']|split(',')|length > loop.index %}
+                ,
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+]

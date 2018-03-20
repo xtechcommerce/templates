@@ -1,0 +1,95 @@
+<nav class="navbar navbar-default" role="navigation">
+    <ul class="nav navbar-nav">
+    {% for page in get_children_of_page('topo-esquerda') %}
+        <li>
+            <a href="{{ page.url is empty ? site_url(page.slug) : page.url }}" {{ page.new_window ? 'target="_blank"':''}}>
+                <h2>{{ page.title }}</h2>
+            </a>
+        </li>
+    {% endfor %}
+    {% for cat in categories %}
+        {% if cat.category.slug != 'home' %}
+            {% if cat.children|count > 0 and template_settings('select:menu_dropdown') > 0 %}
+                <li class="dropdown" onmouseover="$(this).addClass('open');" onmouseout="$(this).removeClass('open');">
+                    <a href="{{ site_url(cat.category.slug) }}">
+                        <h2>{{ cat.category.name }}</h2>
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% set limiter = 0 %}
+                        {% for child in cat.children %}
+                            {% if child.children|count > 0 and template_settings('select:menu_dropdown') == 2 %}
+                                <li class="dropdown" onmouseover="$(this).addClass('open');" onmouseout="$(this).removeClass('open');">
+                                    <a href="{{ site_url(cat.category.slug ~ '/' ~ child.category.slug) }}">
+                                        {{ child.category.name }}
+                                        <b class="sub-caret"></b>
+                                    </a>
+                        
+                                    <ul class="dropdown-submenu">
+                                        {% for newChild in child.children %}
+                                            <li>
+                                                <a href="{{ site_url(cat.category.slug ~ '/' ~ child.category.slug ~'/'~ newChild.category.slug) }}">
+                                                    {{ newChild.category.name }}
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% elseif template_settings('text:quantity_dropdown') > 2 %}
+                                {% set limiter = limiter + 1 %}
+                                {% if limiter == 1 %}
+                                    <li class="block-list-limiter">
+                                        <ul class="list-limiter">
+                                {% endif %}
+                                <li>
+                                    <a href="{{ site_url(cat.category.slug ~ '/' ~ child.category.slug) }}">
+                                        {{ child.category.name }}
+                                    </a>
+                                </li>
+                                
+                                {% if limiter == template_settings('text:quantity_dropdown') or  cat.children|length == loop.index %}
+                                        {% set limiter = 0 %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+                                                                    
+                            {% else %}
+                                <li>
+                                    <a href="{{ site_url(cat.category.slug ~ '/' ~ child.category.slug) }}">
+                                        {{ child.category.name }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% else %}
+                <li>
+                    <a href="{{ site_url(cat.category.slug) }}">
+                        <h2>{{ cat.category.name }}</h2>
+                    </a>
+                </li>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    {% for page in get_children_of_page('topo-direita') %}
+        <li>
+            <a href="{{ page.url is empty ? site_url(page.slug) : page.url }}" {{ page.new_window ? 'target="_blank"':''}}>
+                <h2>{{ page.title }}</h2>
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+</nav>
+
+{% if template_settings('text:quantity_dropdown') > 0 and template_settings('select:menu_dropdown') < 2  %}
+<script>
+    $(document).ready(function(){
+        $('.dropdown-menu').each(function(){
+            var colunas = $(this).find('.block-list-limiter').length;
+            $(this).css('width', (colunas*{{template_settings('text:width_dropdown')}})+'px');
+        }); 
+        $('.block-list-limiter').css('width','{{template_settings('text:width_dropdown')}}px');
+    });
+</script>
+{% endif %}

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr">
+    <head>
+        {{ header_code() }}
+        {% if request.get.single is not empty %}
+            {% set single = get_element(request.get.single) %}
+            <title>{{ single['text:title'] }} | {{ shop_config('company_name') }}</title>
+            <meta name="description" itemprop="description" content="{{ single['text:excerpt'] }}" />
+            <meta name="keywords" itemprop="keywords" content="{{ single['text:keywords'] }}" />
+            {{ single['textarea:custom_tags'] }}
+        {% else %}
+            <title>{{ page_title|lower == 'home' and shop_config('default_title') is not empty ? shop_config('default_title') : document_title(seo_title|default(page_title)) }} | {{ shop_config('company_name') }}</title>
+        {% endif %}
+        {# CSS #}
+        {{ theme_css('bootstrap.min.css', true) }}
+        {{ theme_css('application.css', true) }}
+        {{ theme_css('jquery.fancybox.css', true) }}
+        {{ theme_css('font-awesome.min.css', true) }}
+        
+        {# Core.js = JQuery + Bootstrap + Migrate #}
+        {#{{ theme_js('core.min.js', true)}}#}
+        {# Extra.js = MaskedInput + Equalheights + imgLiquid #}
+        {#{{ theme_js('extra.min.js', true)}}#}
+        {{ global_js('jquery.js', true) }}
+    	{{ global_js('jquery-migrate.min.js', true) }}
+    	{{ global_js('bootstrap.min.js', true) }}
+    	{{ global_js('jquery.maskedinput.js', true) }}
+    	{{ global_js('jquery.equalheights.js', true) }}
+    	{{ global_js('imgLiquid-min.js', true) }}
+        
+        {# Local JS #}
+        {{ theme_js('application.js', true) }}
+        
+        {# Customization from Template Settings #}
+        {% include 'customize.html' %}
+        
+        {# Favicons #}
+        {% set favicon_link = template_settings('image:favicon') ? host_url('uploads/images/full/' ~ template_settings('image:favicon')) : theme_img('favicon.png') %}
+        <!--[if IE]><link rel="shortcut icon" href="{{ theme_img('favicon.ico') }}"><![endif]-->
+        <link rel="icon" href="{{ favicon_link }}">
+        <link rel="apple-touch-icon" href="{{ favicon_link }}">
+        
+        {% if template_settings('textarea:head_code') %}
+            {{ template_settings('textarea:head_code') }}
+        {% endif %}
+        
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        
+        {% block head_script %}
+        {% endblock %}
+    </head>
+    <body itemscope itemtype="http://schema.org/Organization">
+        {{ body_code() }}
+        {# ------ #}
+    	{# ALERTS #}
+    	{# ------ #}
+    	<section id="flash">
+    		<div class="container-fluid">
+    			<div class="row">
+    				<div class="col-xs-12">
+    					{% if flashdata.error %}
+    					<div class="alert alert-danger">
+    						{{ flashdata.error }}
+    						<a class="close-alert">{{'fechar'|trans({'en':'close'})}}</a>
+    					</div>
+    					{% endif %}
+    					{% if flashdata.message %}
+    					<div class="alert alert-info">
+    						{{ flashdata.message }}
+    						<a class="close-alert">{{'fechar'|trans({'en':'close'})}}</a>
+    					</div>
+    					{% endif %}
+    					{% if error %}
+    					<div class="alert alert-danger">
+    						{{ error }}
+    						<a class="close-alert">{{'fechar'|trans({'en':'close'})}}</a>
+    					</div>
+    					{% endif %}
+    				
+    				    {# --------------------- #}
+                    	{# ALERTA - FRETE GRÁTIS #}
+                    	{# --------------------- #}
+                    	{% if template_settings('if:alert_shipping') and (payment_methods or "view_cart" in current_url()) %}
+                            {% set country_id = set_value('country_id', (customer.ship_address.country_id ? customer.ship_address.country_id : shop_config('default_country_id'))) %}
+                            <div class="alert alert-warning alert_free" style="display:none;">
+                                <p>Acrescentando mais <strong class="total_cart">{{ cart.cart_subtotal }}</strong> no total do seu pedido você aproveita o <strong>Frete Grátis</strong></p>
+                                <a class="close-alert">{{'fechar'|trans({'en':'close'})}}</a>
+                            </div>
+                            <script type="text/javascript">
+                                $(window).load(function(){
+                                    calculate_free_shipping();
+                                });
+                                $(document).ready(function(){
+                                    $('#zip_code').on('blur', function(){
+                                        calculate_free_shipping();
+                                    });
+                                });
+                                var calculate_free_shipping = function(){
+                                    var zip_code = $('#zip_code').val();
+                                    if (zip_code.length==9 && zip_code.indexOf('_') == -1) {
+                                        $.post('{{ base_url() }}shipping/rules', function(data){
+                                            var free_shipping = 10000;
+                                            var free_shipping_location = false;
+                                            var district = $('#a_district').val();
+                                            var city = $('#a_city').val();
+                                            var state = $('#zone_id').val();
+                                            // console.log(data);
+                                            $.each(data, function(index, value){
+                                                $.each(value.location, function(ind, val){
+                                                    if(value.discounted_shipping == "0") {
+                                                        if (val.bairro == district && val.city == city && val.zone == state) {
+                                                            free_shipping_location = true;
+                                                        } else if (val.city == city && val.zone == state && val.bairro == '') {
+                                                            free_shipping_location = true;
+                                                        } else if (val.zone == state && val.city == '' && val.bairro == '') {
+                                                            free_shipping_location = true;
+                                                        } else if (val.country == '{{ country_id }}' && val.zone == '0' && val.city == '' && val.bairro == '') {
+                                                            free_shipping_location = true;    
+                                                        }
+                                                    }
+                                                });
+                                                if (parseFloat(value.free_shipping) < free_shipping && free_shipping_location) {
+                                                    free_shipping = value.free_shipping;
+                                                }
+                                                free_shipping_location = false;
+                                            });
+                                            free_shipping = parseFloat(free_shipping);
+                                            if(free_shipping > 0 && free_shipping != 10000){
+                                                var total_shipping = {{ cart('shipping_cost')|default('0.00') }};
+                                				var total_cart = {{ cart('total')|default('0.00') }} - total_shipping;
+                                				var shipping = (free_shipping - total_cart).toFixed(2).replace('.',',').toString();
+                                				if ((free_shipping - total_cart) <= 0) {
+                                					$('.alert_free').removeClass().addClass('alert alert-success alert_free');
+                                					$('.alert_free p').html('{{template_settings('text:alert_shipping')}}');
+                                					$('.alert_free').slideDown();
+                                				} else {
+                                				    $('.alert_free').removeClass().addClass('alert alert-warning alert_free');
+                                				    $('.alert_free p').html('Acrescentando mais <strong class="total_cart">R$ ' + shipping + '</strong> no total do seu pedido você aproveita o <strong>Frete Grátis</strong>');
+                                					$('.alert_free').slideDown();
+                                				}
+                                            }
+                            			});
+                                    }
+                                }
+                            </script>
+                        {% endif %}
+    				</div>
+    			</div>
+    		</div>
+    	</section>
+        
+        {% if design_mode %}
+        	{{ template_navigator() }}
+        {% endif %}
+        
+        {% if template_settings('textarea:body_begin_code') %}
+            {{ template_settings('textarea:body_begin_code') }}
+        {% endif %}
+        <div id="modal-container" class="modal fade"></div>
+        
+        {# ----- #}
+    	{# POPUP #}
+    	{# ----- #}
+    	{% if homepage %}
+        	{% if template_settings('if:popup') %}
+        		<script type="text/javascript">
+        		    {% if template_settings('if:daily') == 0 %}
+        			    del_cookie("popup");
+        			{% endif %}
+        			$(document).ready(function(){
+        				var visit = getCookie("popup");
+        				if(visit == null){
+        					$('#modal-container').html('<section id="popup"><div class="modal-dialog"><div class="modal-content"><div class="modal-body"><h1>{{ template_settings('text:title')|e }}</h1><p>{{ template_settings('textarea:message')|nl2br|replace({"\r": "", "\n": ""})|e }}</p>{{form_open('contact/newsletter_signup')}}<input type="text" name="fullname" placeholder="Seu nome" value=""/><input type="text" name="email" placeholder="Seu email" value=""/><button type="submit">{{ template_settings('text:submit')|e }}</button></form><span>{{ template_settings('text:sub')|e }}</span><button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="glyphicon glyphicon-remove"></i></button></div></div></div></section>');
+        					$('#modal-container').modal('show');
+        					var expire = new Date();
+        					expire = new Date(expire.getTime() + 86400000);
+        					document.cookie = "cookie=popup; expires=" + expire;
+        				}
+        			});
+        		</script>
+        	{% endif %}
+    	{% endif %}
+    	
+    	
+        {# Box Style #}
+        {{ template_settings('if:force_box') ? '<div class="box">' : '' }}
+        {# HEADER #}
+        {% if (template_settings('if:catalog') == 0 or template_settings('text:t_phone') != "") and not payment_methods %}
+        <section id="topbar">
+            <div class="container{{ template_settings('if:force_topbar') and template_settings('if:force_content') ? '-fluid' : '' }}">
+                <div class="row">
+                    <div class="col-xs-12">
+                        {% include('top_navigation.html') %}
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+        {# Box Style End #}
+        <header>
+            <div class="container{{ template_settings('if:force_header') and template_settings('if:force_content') ? '-fluid' : '' }}">
+                <div class="row">
+                    <div class="{{ template_settings('layout:header') == 'hed_foco' ? 'col-xs-12 text-center' : 'col-xs-4' }}">
+                        {{ homepage ? '<h1 class="logo-base">':'<div class="logo-base">' }}
+                        <a href="{{ base_url() }}">
+                            <img class="logo" src="{{ logo_url() }}" alt="{{ shop_config('company_name') }}">
+                        </a>            
+                        {{ homepage ? '</h1>':'</div>' }}
+                    </div>
+                    {% if template_settings('layout:header') == 'hed_completo' %}
+                        <div id="top-search" class="col-xs-4 adjust text-right pull-right">
+                            {% if not payment_methods %}
+                                {# Busca #} 
+                                {{ form_open('cart/search', {id: "form-search"}) }}
+                                <div class="input-group">
+                                    <input type="text" name="term" id="search-engine" class="form-control" placeholder="{{ lang('do_search') }}" autocomplete="off" />
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button">
+                                            <i class="glyphicon glyphicon-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                                {# Carregando #}
+                                <div id="search-loader">
+                                    <img src="{{ theme_url('assets/img/ajax-loader.gif') }}" />
+                                </div>
+                                {# Resultados da pesquisa #}
+                                <div id="search-results">
+                                    <span class="arrowup"></span>
+                                    <div id="search-results-in"></div>
+                                </div>
+                                {{ form_close() }}
+                            {% endif %}    
+                        </div>
+                    {% elseif template_settings('layout:header') == 'hed_minimo' %}
+                        {# MAIN MENU #}
+                            {% if not payment_methods %}
+                            <div id="menu" class="col-xs-8 adjust">
+                                {% include 'main_menu.html' %}
+                            </div>
+                            {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+        {% if template_settings('layout:header') != 'hed_minimo'  and not payment_methods %}
+        <section id="menu">
+            <div class="container{{ template_settings('if:force_menu') and template_settings('if:force_content') ? '-fluid' : '' }}">
+                <div class="row">
+                    <div class="col-xs-12">
+                        {% include 'main_menu.html' %}
+                    </div>
+                </div>   
+            </div>             
+        </section>
+        {% endif %}
+        {# BANNER #}
+    	{% block banner %}
+    	{% endblock %}
+    	{# CONTENT #}
+		<section id="store-content">
+    		<div class="container{{ template_settings('if:force_body') ? '-fluid' : '' }}">
+    			{% block content %}
+    			{% endblock %}
+    		</div>
+    	</section>
+    	{# BLOG #}
+    	{% block blog %}
+    	{% endblock %}
+    	{# FOOTER #}
+		<footer>
+    		<div class="container{{ template_settings('if:force_footer') and template_settings('if:force_content') ? '-fluid' : '' }}">
+    			<div class="row">
+    				<div class="col-xs-12">
+    					{% if not payment_methods %}
+        					<div class="block links">
+        						<div class="row">
+        							<div class="col-xs-3">
+        								<h3>{{ "Institucional"|trans({'en':'Institutional'}) }}</h3>
+        								<ul>
+        									{% for page in get_children_of_page('institucional') %}
+        									<li>
+        										<a href="{{ page.url is empty ? site_url(page.slug) : page.url }}" {{ page.new_window ? 'target="_blank"':''}}>{{ page.title }}</a>
+        									</li>
+        									{% endfor %}
+        								</ul>
+        							</div>
+        							<div class="col-xs-3">
+        								<h3>{{ "Ajuda & Suporte"|trans({'en':'Support'}) }}</h3>
+        								<ul>
+        								    {% set children_of_page = get_children_of_page('ajuda-e-suporte')|length > 0 ? get_children_of_page('ajuda-e-suporte') : get_children_of_page('ajuda') %}
+        									{% for page in children_of_page %}
+        									<li>
+        										<a href="{{ page.url is empty ? site_url(page.slug) : page.url }}" {{ page.new_window ? 'target="_blank"':''}}>{{ page.title }}</a>
+        									</li>
+        									{% endfor %}
+        								</ul>
+        							</div>
+        							<div class="col-xs-6">
+        							    <div class="row">
+        							        <div class="col-xs-8">
+                						        <h3>Newsletter</h3>
+                								{{ form_open('contact/newsletter_signup') }}
+                									<div class="input-group">
+                										<input type="text" name="email" id="newsletter" placeholder="{{ 'Insira seu e-mail'|trans({'en':'Your email'}) }}" class="form-control" />
+                										<span class="input-group-btn">
+                											<button type="submit" class="btn btn-sub">
+                												{{ "Assinar"|trans({'en':'Sign Up'}) }} 
+                											</button>
+                										</span>
+                									</div>
+                								{{ form_close() }}
+                							</div>
+                							<div class="col-xs-4">
+                								<h3>{{ "Redes Sociais"|trans({'en':'Social Media'}) }}</h3>
+                								{% 	set socials = {
+                									facebook: {link: social_link('facebook'), alt: "Curta nossa página no Facebook"},
+                									twitter: {link: social_link('twitter'), alt: "Siga-nos no Twitter"},
+                									instagram: {link: social_link('instagram'), alt: "Siga-nos no Instagram"},
+                									google: {link: social_link('google'), alt: "Siga-nos no Google"},
+                									pinterest: {link: social_link('pinterest'), alt: "Siga-nos no Pinterest"},
+                									youtube: {link: social_link('youtube'), alt: "Inscreva-se no Youtube"},
+                									}
+                								%}
+                								<div class="social">
+                									{% for social, attr in socials %}
+                										{% if attr.link %}
+                											<a class="social-icons" href="{{ attr.link }}" target="_blank">
+                												<i class="fa fa-lg fa-fw fa-{{social}}"></i>
+                											</a>
+                										{% endif %}
+                									{% endfor %}
+                								</div>
+                							</div>  
+        							    </div>
+        							    {% if template_settings('if:facebook_page') %}
+        							    <div class="row">
+        							        <div class="col-xs-12 fb_widget">
+        							            {# Init#}
+        							            <div id="fb-root"></div>
+                                                <script>(function(d, s, id) {
+                                                  var js, fjs = d.getElementsByTagName(s)[0];
+                                                  if (d.getElementById(id)) return;
+                                                  js = d.createElement(s); js.id = id;
+                                                  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.6&appId=1699200170300370";
+                                                  fjs.parentNode.insertBefore(js, fjs);
+                                                }(document, 'script', 'facebook-jssdk'));</script>
+                                                
+                                                <div class="fb-page" data-href="{{ social_link('facebook') }}"
+                                                                     width="500"
+                                                                     data-small-header="{{ template_settings('if:facebook_small_header') ? 'true' : 'false' }}"
+                                                                     data-adapt-container-width="true"
+                                                                     data-hide-cover="{{ template_settings('if:facebook_hide_cover') ? 'true' : 'false' }}"
+                                                                     data-show-facepile="{{ template_settings('if:facebook_show_faces') ? 'true' : 'false' }}"
+                                                >
+                                                <blockquote cite="{{ social_link('facebook') }}"
+                                                            class="fb-xfbml-parse-ignore">
+                                                            <a href="{{ social_link('facebook') }}">Xtech Commerce</a>
+                                                </blockquote>
+                                                </div>
+        							        </div>
+        							    </div>
+        							    {% endif %}
+        							</div>
+        						</div>
+        					</div>
+        				{% endif %}	
+    					{% if template_settings('if:language') or template_settings('if:catalog') == 0 %}
+    					<div class="block config">
+    					    <div class="row">
+    					        {% if template_settings('if:catalog') == 0 %}
+    					        <div class="col-xs-12 text-center payments">
+					                {% if template_settings('if:pay-visa') %}
+                                        <p><img src="{{ global_img('f-visa.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-master') %}
+                                        <p><img src="{{ global_img('f-mastercard.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-diners') %}
+                                        <p><img src="{{ global_img('f-diners.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-elo') %}
+                                        <p><img src="{{ global_img('f-elo.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-amex') %}
+                                        <p><img src="{{ global_img('f-amex.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-aura') %}
+                                        <p><img src="{{ global_img('f-aura.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-discover') %}
+                                        <p><img src="{{ global_img('f-discover.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-jcb') %}
+                                        <p><img src="{{ global_img('f-jcb.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-boleto') %}
+                                        <p><img src="{{ global_img('f-boleto.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-bcash') %}
+                                        <p><img src="{{ global_img('f-bcash.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-cielo') %}
+                                        <p><img src="{{ global_img('f-cielo.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-paypal') %}
+                                        <p><img src="{{ global_img('f-paypal.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-moip') %}
+                                        <p><img src="{{ global_img('f-moip.png') }}"></p>
+                                    {% endif %}
+                                    {% if template_settings('if:pay-pagseguro') %}
+                                        <p><img src="{{ global_img('f-pagseguro.png') }}"></p>
+                                    {% endif %}
+    					        </div>
+    					        {% endif %}
+    					    </div>
+    					</div>
+    					{% endif %}
+    					<div class="block">
+    						<div class="row">
+    						    {% if template_settings('textarea:camaranet') %}
+    						    <div class="col-xs-12 text-center camaranet">
+    						        {{ template_settings('textarea:camaranet') }}
+    						        <br>
+    						    </div>
+    						    {% endif %}
+    						    {% if template_settings('textarea:ebit') %}
+    						    <div class="col-xs-12 text-center ebit">
+    						        <table width=125 border=0 cellspacing=0 cellpadding=0 title="CLICK TO VERIFY: This site uses a GlobalSign SSL Certificate to secure your personal information." ><tr><td><span id="ss_img_wrapper_gmogs_image_125-50_en_dblue"><a href="https://www.globalsign.com/" target=_blank title="GlobalSign Site Seal" rel="nofollow"><img alt="SSL" border=0 id="ss_img" src="//seal.globalsign.com/SiteSeal/images/gmogs_image_125-50_en_dblue.png"></a></span><script type="text/javascript" src="//seal.globalsign.com/SiteSeal/gmogs_image_125-50_en_dblue.js"></script></td></tr></table>
+    						        {{ template_settings('textarea:ebit') }}
+    						    </div>
+    						    {% endif %}
+    						    {% if template_settings('if:language') %}
+    					        <div class="col-xs-12 languages">
+    					            <ul>
+    					                <li>{{ "Altere o idioma"|trans({'en':'Change language'}) }}:</li>
+    					                {% if current_lang() != 'portugues' %}
+    					                <li><a href="http://{{ shop_config('domain') }}/pt"><span class="flag flag-br"></span></a></li>
+    					                {% elseif current_lang() != 'english' %}
+    					                <li><a href="http://{{ shop_config('domain') }}/en"><span class="flag flag-us"></span></a></li>
+    					                {% endif %}
+    					            </ul>
+    					        </div>
+    					        {% endif %}
+    							<div class="col-xs-12 text-center">	                        
+    							    {% if shop_config('cnpj') or shop_config('company_registration') or shop_config('address1') %}
+        							    <p><small>
+    			                        {% if shop_config('cnpj') %}
+        							        <strong>CNPJ:</strong> {{ shop_config('cnpj') }}<br>
+    				                    {% endif %}
+    			                        {% if shop_config('company_registration') %}
+        								    <strong>Razão Social:</strong> {{ shop_config('company_registration') }}<br>
+    				                    {% endif %}
+    			                        {% if shop_config('address1') %}
+            								<strong>Endereço:</strong>
+            								{{ shop_config('address1') }}
+            								{{ shop_config('address2') }} -
+            								{{ shop_config('district') }},
+            								{{ shop_config('city') }} -
+            								{{ shop_config('state') }}
+    				                    {% endif %}
+        								</small></p>
+				                    {% endif %}
+    								<p><small>&copy; {{ "now"|date('Y') }} {{ shop_config('company_name') }}. {{ "Todos os direitos reservados."|trans({'en':'All rights reserved.'}) }}</small></p>
+    							</div>
+    							<div class="col-xs-12 text-center">
+    								<p><small>
+    								    {% if template_settings('image:designed') %}
+    									Designed by
+    									<a href="http://{{ template_settings('text:designed') }}" target="_blank">&nbsp;
+    									    <img src="{{ host_url('uploads/images/full/' ~ template_settings('image:designed')) }}">
+    									</a>
+    							        {% endif %}
+    							        &nbsp;&nbsp;&nbsp;
+    									Powered by
+    									<a href="http://xtechcommerce.com.br" target="_blank">&nbsp;
+    									{% if template_settings('if:powered-dark') %}
+    										{{ theme_img("xtech.png", true) }}
+    									{% else %}
+    										{{ theme_img("xtech_b.png", true) }}
+    									{% endif %}
+    									</a>
+    								</small></p>
+    							</div>
+    						</div>	
+    					</div>
+    				</div>
+    			</div>
+    		</div>
+    	</footer>
+        {{ template_settings('if:force_box') ? '</div>' : '' }}
+        {% if template_settings('text:gremarketing_id') %}
+            <!-- Codigo do Google para tag de remarketing -->
+        	<script type="text/javascript">
+            var google_tag_params = {
+                ecomm_prodid: {% if products %}[{% for product in products %}'{{ product.id }}'{{ loop.last ? '' : ',' }}{% endfor %}] {% elseif product %} [{{ product.id }}] {% elseif payment_methods %} [{% for cartkey, product in cart('contents') %} {{ product.id }} {% endfor %}] {% else %} '' {% endif %},
+                ecomm_pagetype: '{{ payment_methods ? 'cart' : homepage ? 'home' : term ? 'searchresults' : order.contents ? 'purchase' : product ? 'product' : category ? 'category' : 'outro' }}',
+                ecomm_totalvalue: {% set totalvalue = 0 %}{% if products %}{% for product in products %}{% set totalvalue = totalvalue + (product.saleprice > 0 ? product.saleprice : product.price) %}{% endfor %}{% elseif order.contents %}{% for product in order.contents %}{% set totalvalue = totalvalue + (product.saleprice > 0 ? product.saleprice : product.price) %}{% endfor %}{% elseif product %}{% set totalvalue = product.saleprice > 0 ? product.saleprice : product.price %}{% elseif payment_methods %}{% set totalvalue = cart('total')|default('0.00') %}{% endif %}{{ totalvalue == 0 ? "''" : totalvalue }},
+                {% if category %}
+                    ecomm_category: '{{ category.name }}',
+                {% endif %}
+                {% if product %}
+                    ecomm_pvalue: '{{ product.saleprice > 0 ? product.saleprice : product.price }}',
+                {% endif %}
+                {% if logged_in %}
+                    hasaccount: 'y',
+                    g: '{{ client.sex ? 'f' : 'm' }}',
+                    state: '{{ client.bill_address['city'] }}',
+                {% else %}
+                    hasaccount: 'n',
+                {% endif %}
+            };
+            </script>
+            <script type="text/javascript">
+            /* <![CDATA[ */
+            var google_conversion_id = {{ template_settings('text:gremarketing_id') }};
+            var google_custom_params = window.google_tag_params;
+            var google_remarketing_only = true;
+            /* ]]> */
+            </script>
+            <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+            </script>
+            <noscript>
+            <div style="display:inline;">
+            <img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/{{ template_settings('text:gremarketing_id') }}/?value=0&amp;guid=ON&amp;script=0"/>
+            </div>
+            </noscript>
+        {% endif %}
+        {% if template_settings('textarea:body_end_code') %}
+            {{ template_settings('textarea:body_end_code') }}
+        {% endif %}
+        
+        
+        {% if template_settings('if:exit_popup') and not logged_in %}
+            {# EXIT MODAL #}
+            <div id="exitModalConfig">
+                <input type="hidden" id="exitControl" value="0"/>
+                <script>
+                    {% if template_settings('if:exit_daily') == 0 %}
+        			    del_real_cookie("exit_cookie","popup");
+        			{% endif %}
+        			setTimeout(function() {
+            			$(document).ready(function(){
+            				var visit = getRealCookie("exit_cookie");
+            				if(visit == null || visit.length == 0 ){
+            					$(document).mousemove(function(e) {
+                                    if(e.pageY <= 5 && $('#exitControl').val() == 0){
+                                    	$('#modal-container').html('<section id="exit_popup"><div class="modal-dialog"><div class="modal-content"><div class="modal-body"><h1>{{ template_settings('text:exit_title')|e }}</h1><p>{{ template_settings('textarea:exit_message')|nl2br|replace({"\r": "", "\n": ""})|e }}</p>{{form_open('contact/newsletter_signup')}}<input type="text" name="email" placeholder="Seu email" value=""/><button type="submit">{{ template_settings('text:exit_submit')|e }}</button></form><span>{{ template_settings('text:exit_sub')|e }}</span><button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="glyphicon glyphicon-remove"></i></button></div></div></div></section>');
+                    					$('#modal-container').modal({
+                    					    backdrop: false
+                    					});
+                    					$('.modal-dialog').animate({'opacity':'1'});
+                                        popupRes($('#exit_popup  .modal-content'));
+                                        $('#exitControl').val("1");
+                                        var expire = new Date();
+                    					expire = new Date(expire.getTime() + 86400000);
+                    					document.cookie = "exit_cookie=popup; expires=" + expire;
+                                    }
+                                });
+            				}
+            			});
+        			}, 10000);    	
+                </script>
+            </div>	
+        {% endif %}    
+        
+    {{ bodyend_code() }}
+    </body>
+</html>

@@ -1,0 +1,191 @@
+{
+	"collections": {
+	    "shipping_address": {
+	      "name": "Área de Entrega",
+		    "listing": "text:name",
+		    "fields": {
+				"text:name":       {"label": "Nome (Somente se o CEP estiver no intervalo abaixo será possível comprar)"}, 
+		        "select:activate": {"label": "Área está ativada?", "default": "Não", "options": ["Sim","Não"]},
+		        "text:cep_inicial": {"label": "CEP Inicial"},
+		        "text:cep_final": {"label": "CEP Final"}
+		    }  
+	    },
+		"measure": {
+			"name": "Tabela de Medidas",
+			"listing": "text:title",
+			"fields": {
+				"text:title":  {"label": "Titulo"},
+				"image:body":  {"label": "Imagem da Medida"}
+			}
+		},
+		"blog": {
+			"name": "Notícias",
+			"listing": "text:title",
+			"fields": {
+				"text:title":       {"label": "Titulo"},
+				"text:excerpt":     {"label": "Resumo [meta=description]"},
+				"text:keywords":    {"label": "Palavras-chave [meta=keywords]"},
+				"textarea:custom_tags": {"label": "Meta Tags"},
+				"image:cover":      {"label": "Capa"},
+				"textarea:resume":  {"label": "Resumo", "rich": true},
+				"textarea:body":    {"label": "Texto", "rich": true}
+			}
+		}
+	},
+	"template_settings": {
+        "-:-":			    	{"label":"<div class='alert alert-info text-center'>Bem Vindo ao Tema Iniciante!<br><br><strong>Precisa de ajuda?</strong> Ligue 4020-1780<br> ou envie um e-mail para suporte@xtechcommerce.com.br</div>"},
+        
+		"group:general": 	        {"label":"Configurações Gerais"},
+		"image:favicon":        {"label":"Mudar Favicon do site", "default":""},
+		"font:body":			{"label":"Fonte Padrão da Loja", "default": "Lato"},
+        "if:catalog":           {"label":"Essa loja é catalogo?", "default":"0"},
+
+		"group:colors": 	        {"label":"Cores"},
+        "color:topbar":	        {"label":"Cor da barra do topo", "default": "#f7f7f7"},
+        "color:topbar_text":	        {"label":"Cor do texto da barra do topo", "default": "#666"},
+        "color:header":	        {"label":"Fundo da area da logo", "default": "#fff"},
+        "color:menu":	        {"label":"Cor da barra do menu", "default": "#fff"},
+        "color:menu_border":	        {"label":"Cor da borda do menu", "default": "#fff"},
+        "color:menu_text":	        {"label":"Cor do texto do menu", "default": "#666"},
+        "color:footer":	        {"label":"Fundo do rodapé", "default": "#f7f7f7"},
+        "color:footer_text":	        {"label":"Cor do texto do rodapé", "default": "#666"},
+        "color:accent":             {"label":"Cor de link hover", "default":"#0b87c6"},
+        "color:buy":                {"label":"Home: Cor botão de ver produto", "default":"#333"},
+        "color:buy_text":          {"label":"Home: Cor do texto para botão de ver produto", "default":"#fff"},
+        "color:buy_product":          {"label":"Produto: Cor para botão de comprar", "default":"#04c600"},
+        "color:buy_product_text":          {"label":"Produto: Cor do texto para botão de comprar", "default":"#fff"},
+        "color:off":                {"label":"Produto: Cor do selo de desconto", "default":"#000"},
+        "color:off_text":                {"label":"Produto: Cor do texto do selo de desconto", "default":"#fff"},
+        
+
+		"group:top": 	        {"label":"Topo"},
+        "if:force_topbar":	    {"label":"Topo: Fluído? (de ponta a ponta)", "default": "0"},
+        "layout:header":	    {"label":"Topo: Modelos", "default": "hed_foco", "options": ["hed_foco","hed_minimo","hed_completo"]},
+        "text:t_phone":         {"label":"Topo: Telefone para Contato", "default":""},
+        "text:h_height":        {"label":"<span class='adjust-opt'>Topo: Ajustar distância do menu/pesquisa em relação a barra do topo</span>", "default":"30px"},
+        
+
+        "group:menu":      {"label":"Menu"},
+		"if:force_menu":	    {"label":"Menu: Fluído (de ponta a ponta)", "default": "0"},
+        "if:sidebar_home":              {"label":"Menu Vertical na Lateral da Home?", "default": "1"},
+        "if:sidebar":                   {"label":"Barra Lateral com categorias e filtros em Categorias?", "default": "1"},
+
+
+		"group:banners": 	        {"label":"Banners"},
+        "-:--":			    	{"label":"<div class='alert alert-warning text-center'>AVISO! O banner principal (slider) é alterado no link Layout > Banner no admin. Clique <a href='http://suporte.xtechcommerce.com/hc/pt-br/articles/203801539-Como-inserir-banner-na-Home-' target='_blank'>aqui</a> e saiba mais</div>"},
+        "if:force_banner":	            {"label":"Banners: Fluido (de ponta a ponta)", "default": "0"},
+        "image:banner_tarja_sup":       {"label":"Banner Tarja Superior: Imagem - Acima do Slider", "default":""},
+        "text:banner_tarja_sup":        {"label":"Banner Tarja Superior: Link - Acima do Slider", "default":""},
+        "image:banner_tarja_inf":       {"label":"Banner Tarja Inferior: Imagem - Abaixo do Slider", "default":""},
+        "text:banner_tarja_inf":        {"label":"Banner Tarja Inferior: Link - Abaixo do Slider", "default":""},
+        "select:banner_extra":          {"label":"Banner: Utilizar banners extras?", "default":"3", "options":["Sem","1","2","3"]},
+        "image:banner_one":             {"label":"<span class='ban-hide ban-1'>Banner Extra #1: Imagem</span>", "default":""},
+        "text:banner_one":              {"label":"<span class='ban-hide ban-1'>Banner Extra #1: Link</span>", "default":""},
+        "image:banner_two":             {"label":"<span class='ban-hide ban-2'>Banner Extra #2: Imagem</span>", "default":""},
+        "text:banner_two":              {"label":"<span class='ban-hide ban-2'>Banner Extra #2: Link</span>", "default":""},
+        "image:banner_three":           {"label":"<span class='ban-hide ban-3'>Banner Extra #3: Imagem</span>", "default":""},
+        "text:banner_three":            {"label":"<span class='ban-hide ban-3'>Banner Extra #3: Link</span>", "default":""},
+        
+
+		"group:products": 	        {"label":"Produtos"},
+		"if:force_content":         {"label":"Conteúdo: Fluído (de ponta a ponta)", "default":"0"},
+		
+        "select:list_prod_cols":        {"label":"Lista de Produtos Home: Quantos produtos por linha?", "options": ["2","3","4","6"], "default":"4"},
+        "text:home_prodheight":         {"label":"Lista de Produtos Home: Qual a altura da foto dos produtos? (apenas número)", "default":"275"},
+        
+        "select:cat_list_prod_cols":    {"label":"Lista de Produtos Categoria: Quantos produtos por linha?", "options":["2","3","4","6"], "default":"3"},
+        "text:cat_prodheight":          {"label":"Lista de Produtos Categoria: Qual a altura da foto do produtos? (apenas número)", "default":"275"},
+
+        "if:swap-image":          {"label":"Lista de Produtos: Ativar troca de imagem?", "default":"1"},
+        "if:off_active":          {"label":"Lista de Produtos: Ativar percentual de desconto?", "default": "0"},
+        "if:at_sight":            {"label":"Lista de Produtos: Ativar exibição de valor à vista?", "default": "0"},
+        "text:at_sight_value":    {"label":"<span class='avista-opt'>Lista de Produtos: Indique o % de desconto</span>", "default":"5"},
+        "text:at_sight_desc":     {"label":"<span class='avista-opt'>Lista de Produtos: Descrição do desconto</span>", "default":"no boleto ou transferência"},
+        
+        "if:calc_ship":          {"label":"Página de Produto: Ativar cálculo de frete?", "default":"0"},
+        "if:qtd_estoque":        {"label":"Página de Produto: Mostrar quantidade em estoque?", "default":"1"},
+        
+        "text:product_off": {"label": "Selo: Texto de produto indisponivel", "default": "Indisponível"},
+
+
+        
+		"group:footer": 	        {"label":"Rodapé"},
+        "if:force_footer":	    {"label":"Rodapé Fluido (de ponta a ponta)", "default": "0"},
+        "if:language":          {"label":"Ativar troca de Idioma?", "default":"0"},
+		"if:powered-dark":      {"label":"Powered by para fundo escuro?", "default":"0"},
+		"image:designed":       {"label":"Logo para Designed By", "default":""},
+        "text:designed":    	{"label":"Link para Designed By", "default": ""},
+
+	    "if:pay-visa":        	{"label":"Icone Pagamento: Visa", "default": "1"},
+	    "if:pay-master":        {"label":"Icone Pagamento: Master", "default": "1"},
+	    "if:pay-diners":        {"label":"Icone Pagamento: Diners", "default": "1"},
+	    "if:pay-elo":        	{"label":"Icone Pagamento: Elo", "default": "1"},
+	    "if:pay-amex":        	{"label":"Icone Pagamento: Amex", "default": "1"},
+	    "if:pay-aura":          {"label":"Icone Pagamento: Aura", "default": "1"},
+	    "if:pay-discover":      {"label":"Icone Pagamento: Discover", "default": "1"},
+	    "if:pay-jcb":           {"label":"Icone Pagamento: JCB", "default": "1"},
+	    "if:pay-boleto":        {"label":"Icone Pagamento: Boleto", "default": "1"},
+	    "if:pay-bcash":        	{"label":"Icone Pagamento: BCash", "default": "1"},
+	    "if:pay-cielo":        	{"label":"Icone Pagamento: Cielo", "default": "1"},
+	    "if:pay-paypal":        {"label":"Icone Pagamento: Paypal", "default": "1"},
+	    "if:pay-moip":          {"label":"Icone Pagamento: Moip", "default": "1"},
+	    "if:pay-pagseguro":     {"label":"Icone Pagamento: Pagseguro", "default": "1"},
+		
+        "textarea:camaranet":   {"label":"Selos: Camara-e.net - Cole seu código aqui:", "default": ""},
+        "textarea:ebit":    	{"label":"Selos: eBit - Cole seu código aqui:", "default": ""},
+        
+		"group:newsletter": 	        {"label":"Popup Newsletter"},
+		"if:popup":				{"label":"Popup: Ativar?", "default": "1"},
+        "if:daily":				{"label":"<span class='hideNew'>Popup: Uso diário? (Aparece apenas uma vez por dia)</span>", "default": "1"},
+        "color:popup_bg":		{"label":"Fundo do Popup", "default": "#fff"},
+        "text:title":			{"label":"Popup: Titulo", "default": "Grandes Descontos"},
+        "textarea:message":		{"label":"Popup: Mensagem", "default": "Cadastre seu email e receba nossos maiores descontos na sua inbox"},
+        "text:sub":				{"label":"Popup: Breve texto informativo", "default": "Não divulgamos seu email"},
+        "color:popup_text":			{"label":"Cor do Texto", "default": "#000"},
+        "text:submit":			{"label":"Popup: Texto para o botão de enviar", "default": "Cadastrar"},
+        "color:popup_submit":			{"label":"Botão: Cor do Texto", "default": "#fff"},
+        "color:popup_submit_bg":		{"label":"Botão: Cor do Fundo", "default": "#000"},
+        "color:popup_close":			{"label":"Fechar: Cor do simbolo", "default": "#ea4a4a"},
+        
+        
+		"group:exit": 	        {"label":"Exit Popup"},
+		"if:exit_popup":		{"label":"Exit Popup: Ativar?", "default": "1"},
+		"if:exit_daily":		{"label":"<span class='hideNew'>Exit Popup: Uso diário? (Aparece apenas uma vez por dia)</span>", "default": "1"},
+        "color:exit_popup_bg":		{"label":"Fundo do Popup", "default": "#fff"},
+		"text:exit_title":		{"label":"Exit Popup: Titulo", "default": "Já está indo?"},
+		"textarea:exit_message":{"label":"Exit Popup: Mensagem", "default": "Não perca a oportunidade de receber nossas novidades na sua inbox"},
+		"text:exit_sub":		{"label":"Exit Popup: Breve texto informativo", "default": "Não divulgamos seu email"},
+        "color:exit_text":			{"label":"Cor do Texto", "default": "#000"},
+		"text:exit_submit":		{"label":"Exit Popup: Texto para o botão de enviar", "default": "Cadastrar"},
+        "color:exit_submit":			{"label":"Botão: Cor do Texto", "default": "#fff"},
+        "color:exit_submit_bg":		{"label":"Botão: Cor do Fundo", "default": "#000"},
+        "color:exit_close":			{"label":"Fechar: Cor do simbolo", "default": "#ea4a4a"},
+
+
+		"group:blog": 	        {"label":"Blog"},
+		"if:blog":              {"label":"Blog: Exibir na home?", "default":"1"},
+		"select:blog_home":    	{"label":"Blog: Exibir item com foto ou resumo na home?", "default": "Resumo", "options": ["Resumo", "Foto"]},
+		"if:bl_zoom":           {"label":"<span class='hideNew'>Blog: Usar efeito de zoom nas imagens?</span>", "default":"1"},
+		"if:bl_archive":        {"label":"Blog: Ativar o histórico?", "default":"1"},
+        
+        
+		"group:advanced_code": 	        {"label":"Códigos Avançados"},
+        "text:gremarketing_id":         {"label":"Remarketing: Conversion ID", "default":""},
+        "textarea:head_code":           {"label":"Código Extra na <span class='html'>&#60head&#62</span>", "default":""},
+        "textarea:body_begin_code":     {"label":"Código Extra no ínicio de <span class='html'>&#60body&#62</span>", "default":""},
+        "textarea:body_end_code":       {"label":"Código Extra no fim de <span class='html'>&#60body&#62</span>", "default":""},
+        "textarea:order_placed_code":   {"label":"Código Extra ao finalizar um pedido", "default":""},
+
+	    "select:checkout_mode":     {"label":"<span class='hideNew'>Selecione o modo de checkout</span>", "options":["One Page Checkout", "Power Checkout"], "default":"Power Checkout"},
+	    "if:alert_shipping":        {"label":"<span class='hideNew'>Ativar alerta de frete grátis?</span>", "default":"0"},
+		"text:alert_shipping":	    {"label":"<span class='hideNew'>Texto ao obter frete grátis</span>", "default": "Você está qualificado a receber Frete Grátis"},
+		"text:cart_min_val":        {"label":"<span class='hideNew'>Valor mínimo para compra</span>", "default":"0"},
+		"text:cart_min_text":       {"label":"<span class='hideNew'>Texto exibido ao não atingir o valor mínimo para compra</span>", "default":"O valor mínimo para compra é de [min_val]"},
+		"if:cart_email":            {"label":"<span class='hideNew'>Captar e-mail no carrinho?</span>", "default":"0"},
+		"text:cart_email_text":     {"label":"<span class='hideNew'>Texto captura de e-mail</span>", "default":"Informe seu email para prosseguir com a compra"},
+		"text:cart_email_btn":      {"label":"<span class='hideNew'>Texto do botão da captura de e-mail</span>", "default":"Pronto!"},
+		
+		"--:css":       	    {"label":"<link href=\"https://xtechfiles-us.s3.amazonaws.com/assets/11170/1464993048/css/temp_set.css\" type=\"text/css\" rel=\"stylesheet\">"},
+		"--:javascript":	    {"label":"<script src=\"https://xtechfiles-us.s3.amazonaws.com/assets/15023/1475885097/js/theme-editor.js\"></script>"}
+	}
+}

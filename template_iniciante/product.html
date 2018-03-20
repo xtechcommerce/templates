@@ -1,0 +1,473 @@
+{% extends _layout %}
+
+{% block content %}
+
+{% import 'product_listing.html' as product_listing %}
+
+{% if product.slug|lower starts with 'clipping' %}
+	{# Script Fancybox #}
+	{{ theme_js('jquery.fancybox.pack.js', true) }}
+	{# Fancybox Init #}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$(".fancybox").fancybox();
+		});
+	</script>
+	<div id="product-cat" itemscope="" itemtype="http://schema.org/Product">
+		<div class="row">
+			{% for image in product.images %}
+				<div class="col-xs-2">
+					<div class="prod-image imgLiquidFill imgLiquid" data-imgLiquid-fill="true">
+						<a class="fancybox" href='{{ theme_upload_url('images/full/' ~ image.filename) }}' rel="gal1">
+							<img src='{{ theme_upload_url('images/medium/' ~ image.filename) }}' style="max-width: 100%;" alt="{{ product.name }}" />
+						</a>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+{% else %}
+<div id="product" itemscope="" itemtype="http://schema.org/Product">
+	{# Script Zoom #}	
+	{{ theme_js('jquery.elevateZoom.min.js', true) }}
+	{# Fim #}
+	<div class="row">
+		<div class="col-xs-12">
+			{% include 'breadcrumbs.html' %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="row showcase">
+				{# Imagens do Produto #}
+				<div class="col-xs-6">
+					<div id="gallery" class="prod-image-thumbs">
+						{% for image in product.images %}
+							<a href='javascript: void(0);' data-image='{{ theme_upload_url('images/medium/' ~ image.filename) }}' data-zoom-image='{{ theme_upload_url('images/full/' ~ image.filename) }}' class="{% if loop.first %}active{% endif %} opt-{{ image.options|default('no') }}" >
+								<img src='{{ theme_upload_url('images/thumbnails/' ~ image.filename) }}' style="max-width: 75px;" alt="{{ product.name }}" />
+							</a>
+						{% endfor %}
+					</div>
+					<div class="prod-image text-center">
+						{% set pImg = product_img(product, 'full', {"only_link": true}) %}
+						{{ product_img(product, 'medium', {'id': 'zoom','extra_html': {'data-zoom-image': pImg}}) }}
+						{% if product.saleprice > 0 and template_settings('if:off_porc') == 0 %}
+							{# Porcentagem OFF #}
+							<div class="off">
+								<span>{{ ((( product.saleprice - product.price ) / product.price) * 100)|round }}%</span>
+							</div>
+						{% endif %}
+					</div>
+					<script>
+						var zoomConfig = {cursor: "crosshair", easing: true, gallery: 'gallery', galleryActiveClass: 'active'};
+						$('#zoom').elevateZoom(zoomConfig);
+					</script>
+            		{% if product.video|length > 0 %}	
+            		    <div class="prod-video">
+            		        {# Script Fancybox #}
+                        	{{ theme_js('jquery.fancybox.pack.js', true) }}
+                    	    <p>
+                    	        Confira o vídeo do nosso produto: 
+                    	        <a class="fancybox.iframe inner-video btn btn-default" href="{{ product.video|replace({'watch?v=':'v/'}) }}" rel="group">
+                    	           <i class="fa fa-fw fa-play"></i>
+                        	    </a>
+            	            </p>
+                        	{# Fancybox Init #}
+                        	<script type="text/javascript">
+                        		$(document).ready(function() {
+                        			$(".inner-video").fancybox();
+                        		});
+                        	</script>
+            		    </div>
+            		{% endif %}
+				</div>
+				<div class="col-xs-6">
+					{# Titulo #}
+					<h1 class="prod-title" itemprop="name">
+						{{ product.name }}
+					</h1>
+					{# Ref e Compra Segura #}
+					{% if template_settings('if:catalog') == 0 %}
+					<div class="prod-sub clearfix">
+						{% if product.sku %}
+							<span class="prod-ref pull-left">
+								{{ 'Ref.:'|trans({'en':'SKU'}) }}
+								<span itemprop="sku">
+									{{ product.sku }}
+								</span>
+							</span>
+						{% endif %}
+						<span class="prod-secure pull-right">
+							<i class="glyphicon glyphicon-lock"></i>
+							{{ 'Compra Segura'|trans({'en':'Trust Secured'}) }}
+						</span>
+					</div>
+					{% endif %}
+					{# Descrição #}
+					{% if product.excerpt %}
+						<div class="prod-excerpt">
+							<p>{{ product.excerpt|nl2br }}</p>
+						</div>
+					{% endif %}
+					{# Lista de Desejo & Medidas #}
+					{% if template_settings('if:catalog') == 0 %}
+					<div class="prod-subacts">
+						<div class="row">
+							{% if get_collection('measure') %}
+							<div class="col-xs-6">
+								<p class="prod-size-table">
+									<a href="#" class="btn btn-primary"><i class="glyphicon glyphicon-info-sign"></i>&nbsp; {{ 'Tabela de Medidas'|trans({'en':'Size Table'}) }}</a>
+								</p>
+								{% include('size_table.html') %}
+								<script type="text/javascript">
+									$('.prod-size-table a').on('click', function(e){
+										e.preventDefault();
+										$('#size-table').modal({
+        					              backdrop: 0
+        					            });
+									});
+								</script>
+							</div>
+							{% endif %}					
+							<div class="col-xs-6">
+								{{ wishlist_button('<i class="glyphicon glyphicon-heart"></i>&nbsp;&nbsp;'~'Lista de Desejo'|trans({'en':'Wishlist'}), product, '', true) }}	
+								<script>
+									$('.add-to-wishlist').find('button').removeClass('btn-sm btn-default').addClass('btn-primary');
+								</script>									
+							</div>
+						</div>
+					</div>
+					{% endif %}
+
+                    {% if product.lookable %}
+                    
+                        {% include '_look.html' %}   
+                        
+                    {% else %}
+                    
+				    	{% if template_settings('if:catalog') == 0 %}
+				    	
+        		          	<div class="hide">{{ variation_select(product, {button_selects: 'true'}) }}</div>
+        		          	<script type="text/javascript">
+						        s_weight = {
+    						    {% for variant in product.variants %}  
+						           {{ variant.id }}: {{ variant.weight }},
+    						    {% endfor %}
+						        }
+						        
+        						productvariants_settings_{{ product.id }}.validationSuccess = function(){
+            						//  Weight
+        						    var s_id = this['selected_variant']['id'];
+        						    var c_weight = s_weight[s_id];
+        						    
+        						    if(c_weight > 0) $('input[name=product_weight]').val(c_weight);
+        						    
+        							$('.installment-price').text('R$ ' + (parseFloat(this.selected_variant.price_num) / {{ product.installments }}).toFixed(2).replace('.', ','));
+        							$('.estoque').show();
+                                    $('.estoque span').html(parseInt(this.selected_variant.quantity));
+        							$('#buy-btn').show();
+        							
+        							variant_pay_discount(this.selected_variant);
+        						}
+        						productvariants_settings_{{ product.id }}.validationNotAvailable = function(){
+                					variant_unavailable();
+                					variant_pay_discount(this.selected_variant);
+                				}
+                				productvariants_settings_{{ product.id }}.validationOutofstock = function(){
+                					variant_unavailable();
+                					variant_pay_discount(this.selected_variant);
+                				}
+                				var variant_unavailable = function(){
+                				    $('#buy-btn').hide();
+                					$('.buy-message').hide();
+                					$('.estoque').hide();
+                					$('.alert-unavailable').removeClass('hide');
+                				}
+                				var variant_pay_discount = function(sel_variant){
+                				    {% if template_settings('if:at_sight') and template_settings('text:at_sight_value') %}
+                                        var val_desc = sel_variant.price_num - ({{ (template_settings('text:at_sight_value') / 100) }} * sel_variant.price_num);
+                                        val_desc = val_desc.toFixed(2).replace('.', ',');
+                                        $('.onsight-price > strong').text("R$ "+ val_desc);
+                                    {% endif %}
+                				}
+        					</script>
+                            
+                            {% if template_settings('if:product_contBuy') %}
+                                {{ form_open('cart/add_to_cart', 'class="form-horizontal buy-btn-form formAddCart"') }}
+                            {% else %}
+                                {{ form_open('cart/add_to_cart', 'class="form-horizontal buy-btn-form"') }}
+                            {% endif %}
+            		          	{% if product.options|count > 0 %}
+            						<div class="prod-variants clearfix">
+            							<ul>		
+            								{% for option in product.options %}
+            									<li class="prod-variant-li clearfix">
+            										<div class="prod-variant">
+            											<span class="prod-variant-title">
+            												{{ 'Selecione a opção para'|trans({'en':'Select a option for'}) }}
+            												<span class="color">{{option.name}}:</span>
+            											</span>
+            											<ul class="list-inline">
+            												{% for value in option.values %}
+            						          	    			{% if value.color %}
+            							          	    			<li class="l-color">
+            								          	    			<button data-id="{{value.id}}" id="filter_{{ value.id }}" class="sub f-color prod-variant-btn prod-variant-color" href="#filter_{{ option.id }}" title="{{ options[0] }}">
+            								          	    				<span class="s-color" style="background: {{ value.color }};"></span>
+            							          	    				</button>
+            							          	    			</li>
+            						      	    				{% else %}
+            														<li>
+            															<button class="sub btn btn-default prod-variant-btn" data-id="{{value.id}}">{{value.name}}</button>
+            														</li>
+            													{% endif %}	
+            												{% endfor %}
+            											</ul>
+            										</div>
+            									</li>
+            								{% endfor %}
+            							</ul>
+            						</div>
+            					{% endif %}
+							    {% for option in options %}
+                                    {% if option.id in product.available_options %}
+                                        {% if option.type == 'textarea' %}
+                                            <label>{{ option.name }}</label>
+                                            <textarea class="form-control" name="option[{{ option.id }}]"></textarea>
+                                        {% elseif option.type == 'textfield' %}
+                                            <label>{{ option.name }}</label>
+                                            <input class="form-control" name="option[{{ option.id }}]">
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                        {% endif %}
+    					<script>
+    						function change_pic (option) {
+    
+    		          			$variation_photo = $('.opt-' + option);
+    		          			$variation_photo_first = $('.opt-' + option + ':first');
+    		          			$variation_photo_global = $('.opt-no');
+    		          			$variation_not = $('.prod-image-thumbs a');
+    		                	
+    		          			$variation_photo_first.trigger('click');
+    		          			$variation_not.hide();
+    		          			$variation_photo.show();
+    		          			$variation_photo_global.show();
+    		          		}
+    
+    						$('.prod-variant-btn').click(function(e){
+    	          				change_pic($(this).data('id'));
+    	          			});
+              			</script>
+    					{% if template_settings('if:catalog') == 0 or product.price > 0 %}
+    					<div class="prod-action">
+    						<div class="row">
+    							<div class="col-xs-7">
+    								<div class="price" itemprop="offers" itemscope="" itemtype="http://schema.org/Offer">
+    									<span class="price">
+    										<strong class="buy-price">
+												<span itemprop="priceCurrency" content="{{ shop_config('currency') }}"></span>
+    											{% if product.saleprice > 0 %}
+    												<span class="slash product_price">{{ product.price|format_currency }}</span>
+    												<span class="sale color product_price" itemprop="price" content="{{ product.saleprice }}">{{ product.saleprice|format_currency }}</span>
+    												<span class="sale color variant_price" style="display: none;">{{ product.saleprice|format_currency }}</span>
+    											{% else %}
+    												<span class="sale color product_price" itemprop="price" content="{{ product.price }}">{{ product.price|format_currency }}</span>
+    												<span class="sale color variant_price" style="display: none;">{{ product.price|format_currency }}</span>
+    											{% endif %}
+    										</strong>
+    										{% if product.installments > 1 %}
+    											<span class="installments-price">
+    											    {% set product_price = product.saleprice > 0 ? product.saleprice : product.price %}
+    												{{ 'Em até '|trans({'en':'or '}) }}<strong class="color">{{ product.installments }}x</strong>
+    												{{ 'de'|trans({'en':'of'}) }} <strong class="color installment-price">{{ (product_price/product.installments)|format_currency }}</strong>
+    												<span>{{ 'sem juros '|trans({'en':''}) }}</span>
+    											</span>
+    										{% endif %}
+    									</span>
+    								</div>
+    							</div>
+    							{% if template_settings('if:catalog') == 0 %}
+    							<div class="col-xs-5">
+    							    {% if template_settings('if:qtd_estoque') == 1 %}
+    							        <p class="estoque">Temos <span>{{ product.quantity }}</span> no estoque</p>
+    							    {% endif %}
+    								<div style="display:none">
+                                        <input type="hidden" name="cartkey" value="">
+                                        <input type="hidden" name="id" value="{{ product.id }}">
+                                        <input type="hidden" name="variant_id" value="">
+                                    </div>
+                                    <button id="buy-btn" class="btn btn-primary btn-lg buy-btn" type="submit" value="submit">
+                                        <i class="glyphicon glyphicon-shopping-cart"></i> {{ 'Comprar'|trans({'en':'Buy'}) }}
+                                    </button>
+                                    <p class="buy-message hide">Escolha uma opção</p>
+                                    <div class="alert-unavailable alert alert-danger hide">Produto indisponível</div>
+                                </form>
+    								{% if product.track_stock == 1 and product.quantity <= 0 %}
+    									<script type="text/javascript">
+    										$(document).ready(function(){
+    											$('#buy-btn').hide();
+    										});
+    									</script>
+    								{% endif %}
+    							{% endif %}
+    							</div>
+    						</div>
+    						<div class="row">
+    							<div class="col-xs-12">
+    								{{ form_open('contact/remind_me', 'class="remindme-form hide form-horizontal"', {'redirect': site_url(uri_string()), 'variant_id': '', 'product_id': product.id}) }}
+    									<fieldset>
+    										<label for="email">
+    								  			{{ lang('remind_me_when_available') }}
+    										</label>
+    									    <div class="input-group">
+    									      <input type="text" name="email" class="form-control" placeholder="Email" />
+    									      <span class="input-group-btn">
+    									        <input type="submit" value="{{ 'Enviar'|trans({'en':'Send'}) }}" name="submit" class="btn btn-primary"/>
+    									      </span>
+    									    </div>
+    									</fieldset>
+    								{{ form_close() }}
+    							</div>
+    						</div>
+    					</div>
+    					{% endif %}
+						{% if template_settings('if:catalog') == 0  and template_settings('if:calc_ship') == 1 and product.shippable == 1 %}
+    					    {{ shipping_widget() }}
+    					{% endif %}
+    				{% endif %}
+					{% if template_settings('if:catalog') == 0 %}
+					<div class="prod-share">
+						<!-- Go to www.addthis.com/dashboard to customize your tools -->
+                        <div class="addthis_sharing_toolbox"></div>
+						<script type="text/javascript">var addthis_config = {"data_track_addressbar":false, ui_language: "pt"};</script>
+						<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-570c00638e25a472"></script>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+
+			{% if product.description or product.properties|count > 0 or testimonials|count > 0 %}
+				{# Descricao e Caracteristicas do produto #}
+				<div class="prod-description">
+					<ul class="nav nav-tabs">
+					    {% if product.description %}
+						<li class="active">
+							<a href="#tab-description" data-toggle="tab">{{ 'Descrição'|trans({'en':'Description'}) }}</a>
+						</li>
+						{% endif %}
+						{% if product.properties|count > 0 %}
+						<li>
+							<a href="#tab-properties" data-toggle="tab">{{ 'Características'|trans({'en':'Properties'}) }}</a>
+						</li>
+						{% endif %}
+						{% if testimonials|count > 0 %}
+						<li {{ product.description ? '' : 'class="active"'}}>
+							<a href="#tab-testimonials" data-toggle="tab">Depoimentos</a>
+						</li>
+                        {% endif %}
+					</ul>
+					<div class="tab-content">
+					    {% if product.description %}
+						<div class="tab-pane active" id="tab-description">
+							{{ product.description|raw }}
+						</div>
+						{% endif %}
+						{% if product.properties|count > 0 %}
+						<div class="tab-pane clearfix" id="tab-properties">
+    						{% for prop in product.properties %}
+        						{% if properties_flatten[prop.id].image is not empty %}
+        						    <img src="{{ host_url("uploads/images/small/" ~ properties_flatten[prop.id].image) }}">
+        						{% else %}
+    						        <h5>{{ properties_flatten[prop.id].name }}</h5>
+        						{% endif %}
+        						<p>{{ properties_flatten[prop.id].description }}</p>
+    					    {% endfor %}
+						</div>
+						{% endif %}
+						{% if testimonials|count > 0 %}
+						<div class="tab-pane {{ product.description ? '' : 'active'}} clearfix" id="tab-testimonials">
+						    {{ testimonials_widget() }}
+						</div>
+                        {% endif %}
+					</div>
+				</div>
+			{% endif %}
+			
+			
+            {% if related|count > 0 %}
+                <div id="prod-relateds">
+                	<h2 class="block-header"><span>{{ 'Aproveite Também'|trans({'en':'Related Products'}) }}</span></h2>
+                	<div class="row prod-list cat-prod-list">
+                		{% for related_product in related|slice(0, 4) %}
+                			{{ product_listing.item(related_product,'',3) }}
+                		{% endfor %}
+                	</div>
+                </div>
+            {% endif %}
+		</div>
+	</div>
+</div>
+
+{# --------------------- #}
+{# CONTINUAR COMPRANDO - #}
+{# --------------------- #}
+{%  if template_settings('if:product_contBuy') %}
+    <div class="modal fade" id="ProdModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">O produto foi adicionado no seu carrinho, e agora?</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <div class="mod_prodimg">
+                					{{ product_img(product, 'medium') }}
+                                </div>
+                            </div>
+                            <div class="col-xs-8">
+                                <div class='row'>
+                                    <div class='col-xs-12'>
+                                        <div class="fix-a">
+                                            <div class="mod_prodtitle text-right">
+                                                <p class="prod-title">{{ product.name }}</p>
+                                                <span class="variant">{{ selected_variant }}</span>
+                                                <p class="prod-price">
+                                                    {% if product.saleprice > 0 %}
+                                                    <del>{{ product.price|format_currency }}</del>
+                    									<br><span class="sale buy-price"><strong>{{ product.saleprice|format_currency }}</strong></span></br>
+                    								{% else %}
+                    									<span class="sale buy-price"><strong>{{ product.price|format_currency }}</strong></span>
+                    								{% endif %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='col-xs-12'>
+                                        <div class="mod_prodaction text-right">
+                                            <p class="subtotal-modal">Subtotal do pedido</p>
+                                            <p class="prodprice"></p>
+                                            <div class="text-right p-top-20">
+                                                <a class="btn btn-finalizar" href="{{ site_url('/cart/view_cart') }}">Finalizar Compra</a>
+                                                <button type="button" class="close btn btn-contBuy" data-dismiss="modal"><span aria-hidden="true">Continuar Comprando</span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+{% endif %}
+
+{% endif %}
+{% endblock %}
