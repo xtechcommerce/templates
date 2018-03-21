@@ -220,3 +220,29 @@
 	
 {% endblock %}
 
+{% block instagram %}
+	{% if template_settings('if:instafeed') %}
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<h2 class="block-header">
+						<span>Instagram</span>
+					</h2>
+					{{ theme_js('instafeed.min.js', true) }}
+					<script type="text/javascript">
+						var userFeed = new Instafeed({
+							get: 'user',
+							userId: '{{ template_settings('text: insta_id') }}',
+							accessToken: '{{ template_settings('text: insta_token') }}',
+							limit: {{ template_settings('text:insta_qtd') }},
+							template: '<a href="{{'{ { link } } '}}" target="_blank" style="background-image:url({{'{ { image } } '}});" class="img-instagram"></a>',
+							resolution: 'low_resolution'
+							});
+						userFeed.run();
+					</script>
+					<div id="instafeed"></div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

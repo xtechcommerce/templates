@@ -259,19 +259,27 @@
             </div>             
         </section>
         {% endif %}
+
         {# BANNER #}
     	{% block banner %}
-    	{% endblock %}
+        {% endblock %}
+        
     	{# CONTENT #}
 		<section id="store-content">
     		<div class="container{{ template_settings('if:force_body') ? '-fluid' : '' }}">
     			{% block content %}
     			{% endblock %}
     		</div>
-    	</section>
+        </section>
+        
     	{# BLOG #}
     	{% block blog %}
+        {% endblock %}
+        
+        {# INSTAGRAM #}
+    	{% block instagram %}
     	{% endblock %}
+
     	{# FOOTER #}
 		<footer>
     		<div class="container{{ template_settings('if:force_footer') and template_settings('if:force_content') ? '-fluid' : '' }}">

@@ -362,6 +362,12 @@
 	    "if:facebook_hide_cover":   {"label":"<span class='strct_obj'>Esconder foto de cover</span>", "default": "0"},
 	    "if:facebook_show_faces":   {"label":"<span class='strct_obj'>Mostrar rosto dos amigos que curtiram?</span>", "default": "1"},
 		
+		"group:instafeed":      {"label":"<span class='strct_obj'>Instagram</span>"},
+		"if:instafeed":         {"label":"<span class='strct_obj'>Ativar o Instagram?</span>", "default": "false"},
+        "text:insta_token":     {"label":"<span class='strct_obj'>Coloque seu Token: (Visite <a href='http://instagram.pixelunion.net' target='_blank'>Pixel Union</a> para renovar seu token)</span>", "default":""},
+        "text:insta_id":        {"label":"<span class='strct_obj'>Seu ID: (Não sabe seu ID, visite <a href='https://smashballoon.com/instagram-feed/find-instagram-user-id/' target='_blank'>Smashballoon</a>)</span>", "default":""},
+        "text:insta_qtd":       {"label":"<span class='strct_obj'>Quantidade de fotos:</span>", "default":"6"},
+
 		"group:google": 	    {"label":"<span class='strct_obj'>Google</span>"},
         "text:gremarketing_id": {"label":"<span class='strct_obj'>Remarketing: Conversion ID</span>", "default":""},
 		
