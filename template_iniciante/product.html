@@ -13,22 +13,24 @@
 			$(".fancybox").fancybox();
 		});
 	</script>
-	<div id="product-cat" itemscope="" itemtype="http://schema.org/Product">
-		<div class="row">
-			{% for image in product.images %}
-				<div class="col-xs-2">
-					<div class="prod-image imgLiquidFill imgLiquid" data-imgLiquid-fill="true">
-						<a class="fancybox" href='{{ theme_upload_url('images/full/' ~ image.filename) }}' rel="gal1">
-							<img src='{{ theme_upload_url('images/medium/' ~ image.filename) }}' style="max-width: 100%;" alt="{{ product.name }}" />
-						</a>
+	<div id="content-product" itemscope="" itemtype="http://schema.org/Product">
+		<div id="product-cat">
+			<div class="row">
+				{% for image in product.images %}
+					<div class="col-xs-2">
+						<div class="prod-image imgLiquidFill imgLiquid" data-imgLiquid-fill="true">
+							<a class="fancybox" href='{{ theme_upload_url('images/full/' ~ image.filename) }}' rel="gal1">
+								<img src='{{ theme_upload_url('images/medium/' ~ image.filename) }}' style="max-width: 100%;" alt="{{ product.name }}" />
+							</a>
+						</div>
 					</div>
-				</div>
-			{% endfor %}
+				{% endfor %}
+			</div>
 		</div>
 	</div>
 {% else %}
 <div id="content-product" itemscope="" itemtype="http://schema.org/Product">
-		<div id="product">
+	<div id="product">
 		{# Script Zoom #}	
 		{{ theme_js('jquery.elevateZoom.min.js', true) }}
 		{# Fim #}
